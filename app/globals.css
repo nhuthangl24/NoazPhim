@@ -2595,23 +2595,35 @@ img {
     top: 64px;
     left: 0;
     width: 100%;
-    background: rgba(10, 10, 15, 0.98);
-    backdrop-filter: blur(20px);
+    background: var(--bg-primary) !important;
     flex-direction: column;
     padding: 16px 24px;
-    gap: 12px;
+    gap: 0;
     border-bottom: 1px solid var(--border-color);
     transform: translateY(-150%);
     opacity: 0;
     transition: all 0.3s ease;
-    z-index: 99;
+    z-index: 999;
     pointer-events: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   }
 
   .nav.nav-open {
     transform: translateY(0);
     opacity: 1;
     pointer-events: auto;
+  }
+
+  .nav-link {
+    display: block;
+    width: 100%;
+    padding: 16px 0;
+    font-size: 1.05rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .nav-link:last-child {
+    border-bottom: none;
   }
 
   .mobile-menu-btn {

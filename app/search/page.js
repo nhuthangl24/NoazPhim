@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import MovieGrid from '@/components/MovieGrid';
 import Pagination from '@/components/Pagination';
 import { normalizeMovie, getImageUrl } from '@/lib/api';
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const keyword = searchParams.get('keyword') || '';
@@ -88,5 +88,13 @@ export default function SearchPage() {
         <p className="page-subtitle">Nhập từ khóa để tìm kiếm phim yêu thích</p>
       )}
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="loadingggg" style={{ minHeight: '50vh' }}><div className="spinner"></div></div>}>
+      <SearchContent />
+    </Suspense>
   );
 }
