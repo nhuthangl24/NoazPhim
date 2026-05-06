@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { fetchMovieDetail, normalizeMovieDetail } from '@/lib/api';
 import FavoriteButton from './FavoriteButton';
-import TrailerButton from '@/components/TrailerButton';
+import TrailerModalButton from './TrailerModalButton';
 import CommentSection from '@/components/CommentSection';
 import { getDb } from '@/lib/mongodb';
 
@@ -162,7 +162,7 @@ export default async function MovieDetailPage({ params }) {
             <Link href={`/watch/${slug}`} className="btn btn-primary">
               Xem Phim
             </Link>
-            <TrailerButton trailerUrl={movie.trailerUrl} />
+            <TrailerModalButton trailerUrl={movie.trailerUrl} />
             <FavoriteButton movie={movie} />
           </div>
         </div>

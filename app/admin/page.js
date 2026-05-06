@@ -7,13 +7,76 @@ import AdminLayout from '@/components/AdminLayout';
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [siteSettings, setSiteSettings] = useState(null);
+  const [siteSettingsLoading, setSiteSettingsLoading] = useState(true);
+  const [siteSettingsSaving, setSiteSettingsSaving] = useState(false);
+  const [siteSettingsMessage, setSiteSettingsMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
+    let active = true;
+
     fetch('/api/admin/stats')
       .then((r) => r.json())
-      .then((d) => { setStats(d.stats); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then((d) => {
+        if (!active) return;
+        setStats(d.stats);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!active) return;
+        setLoading(false);
+      });
+
+    fetch('/api/admin/site-settings')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!active) return;
+        setSiteSettings(d.settings);
+        setSiteSettingsLoading(false);
+      })
+      .catch(() => {
+        if (!active) return;
+        setSiteSettingsLoading(false);
+        setSiteSettingsMessage({ type: 'error', text: 'Không tải được trạng thái khóa website.' });
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
+
+  const handleToggleSiteLock = async () => {
+    if (!siteSettings) return;
+
+    setSiteSettingsSaving(true);
+    setSiteSettingsMessage({ type: '', text: '' });
+
+    try {
+      const nextLocked = !siteSettings.siteLocked;
+      const res = await fetch('/api/admin/site-settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ siteLocked: nextLocked }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Cập nhật thất bại');
+      }
+
+      setSiteSettings(data.settings);
+      setSiteSettingsMessage({
+        type: 'success',
+        text: nextLocked
+          ? 'Đã bật chế độ khóa website. Người dùng thường sẽ chỉ thấy trang thông báo.'
+          : 'Đã tắt chế độ khóa website. Website hoạt động bình thường trở lại.',
+      });
+    } catch (error) {
+      setSiteSettingsMessage({ type: 'error', text: error.message || 'Cập nhật thất bại.' });
+    } finally {
+      setSiteSettingsSaving(false);
+    }
+  };
 
   return (
     <AdminLayout>
@@ -49,6 +112,35 @@ export default function AdminDashboard() {
             <div className="stat-number">{loading ? '...' : stats?.scheduleCount || 0}</div>
             <div className="stat-label">Lịch phát sóng</div>
           </div>
+        </div>
+      </div>
+
+      <div className="admin-quick-links" style={{ marginBottom: '32px' }}>
+        <h2>Trạng thái website</h2>
+        <div className="site-setting-card">
+          <div className="site-setting-copy">
+            <span className={`site-setting-status ${siteSettings?.siteLocked ? 'locked' : 'open'}`}>
+              {siteSettingsLoading ? 'Đang tải...' : siteSettings?.siteLocked ? 'Đang khóa công khai' : 'Đang mở bình thường'}
+            </span>
+            <h3>Khóa website công khai</h3>
+            <p>
+              Khi bật, người dùng thường chỉ thấy trang thông báo &quot;nội dung chỉ phục vụ cho đồ án&quot;.
+              Chỉ các đường dẫn admin và auth mới được giữ lại để quản trị viên vào tắt.
+            </p>
+            {siteSettingsMessage.text && (
+              <p className={`site-setting-feedback ${siteSettingsMessage.type}`}>
+                {siteSettingsMessage.text}
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            className={`btn ${siteSettings?.siteLocked ? 'btn-secondary' : 'btn-primary'}`}
+            onClick={handleToggleSiteLock}
+            disabled={siteSettingsLoading || siteSettingsSaving}
+          >
+            {siteSettingsSaving ? 'Đang cập nhật...' : siteSettings?.siteLocked ? 'Tắt chế độ khóa' : 'Bật chế độ khóa'}
+          </button>
         </div>
       </div>
 

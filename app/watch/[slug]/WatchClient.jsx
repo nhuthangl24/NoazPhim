@@ -1,32 +1,34 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ArtPlayerComponent from '@/components/ArtPlayerComponent';
 import { saveWatchProgress, getWatchProgress } from '@/lib/storage';
 
+function flattenEpisodes(episodes) {
+  return episodes.flatMap((server) =>
+    server.serverData.map((episode) => ({
+      ...episode,
+      serverName: server.serverName,
+    }))
+  );
+}
+
+function findInitialEpisode(episodes, initialEpisodeSlug) {
+  const episodeList = flattenEpisodes(episodes);
+
+  if (initialEpisodeSlug) {
+    return episodeList.find((episode) => episode.slug === initialEpisodeSlug) || episodeList[0] || null;
+  }
+
+  return episodeList[0] || null;
+}
+
 export default function WatchClient({ movieData, slug, initialEpisodeSlug }) {
   const router = useRouter();
   const { movie, episodes } = movieData;
-
-  // Memoize to avoid recreating on every render
-  const allEpisodes = useMemo(
-    () =>
-      episodes.flatMap((server) =>
-        server.serverData.map((ep) => ({ ...ep, serverName: server.serverName }))
-      ),
-    [episodes]
-  );
-
-  const getInitialEpisode = () => {
-    if (initialEpisodeSlug) {
-      return allEpisodes.find((ep) => ep.slug === initialEpisodeSlug) || allEpisodes[0] || null;
-    }
-    return allEpisodes[0] || null;
-  };
-
-  const [currentEpisode, setCurrentEpisode] = useState(getInitialEpisode);
+  const [currentEpisode, setCurrentEpisode] = useState(() => findInitialEpisode(episodes, initialEpisodeSlug));
   const [videoUrl, setVideoUrl] = useState('');
   const [videoError, setVideoError] = useState(false);
   const [initialTime, setInitialTime] = useState(0);
@@ -65,18 +67,19 @@ export default function WatchClient({ movieData, slug, initialEpisodeSlug }) {
     }
   }, [currentEpisode, slug]);
 
-  const handleTimeUpdate = useCallback(
-    (time) => {
-      if (currentEpisode) {
-        saveWatchProgress(slug, currentEpisode.slug, time, {
-          name: movie.name,
-          posterUrl: movie.posterUrl,
-          episodeName: currentEpisode.name,
-        });
-      }
-    },
-    [slug, currentEpisode, movie]
-  );
+  useEffect(() => {
+    setCurrentEpisode(findInitialEpisode(episodes, initialEpisodeSlug));
+  }, [episodes, initialEpisodeSlug]);
+
+  const handleTimeUpdate = (time) => {
+    if (!currentEpisode) return;
+
+    saveWatchProgress(slug, currentEpisode.slug, time, {
+      name: movie.name,
+      posterUrl: movie.posterUrl,
+      episodeName: currentEpisode.name,
+    });
+  };
 
   const handleEpisodeClick = (ep) => {
     setCurrentEpisode(ep);

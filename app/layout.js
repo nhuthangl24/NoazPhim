@@ -1,5 +1,10 @@
-import Providers from '@/components/Providers';
+import { AuthProvider } from '@/components/AuthContext';
+import AuthModal from '@/components/AuthModal';
 import AppLayout from '@/components/AppLayout';
+import SiteLockScreen from '@/components/SiteLockScreen';
+import { getSession } from '@/lib/auth';
+import { getSiteSettings } from '@/lib/site-settings';
+import { headers } from 'next/headers';
 import './globals.css';
 
 export const metadata = {
@@ -7,7 +12,16 @@ export const metadata = {
   description: 'Xem phim online chất lượng cao, cập nhật nhanh nhất. Phim lẻ, phim bộ, hoạt hình vietsub.',
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const [requestHeaders, session, siteSettings] = await Promise.all([
+    headers(),
+    getSession(),
+    getSiteSettings(),
+  ]);
+  const pathname = requestHeaders.get('x-pathname') || '/';
+  const allowWhenLocked = pathname.startsWith('/admin') || pathname.startsWith('/auth');
+  const shouldShowLockScreen = siteSettings.siteLocked && session?.role !== 'admin' && !allowWhenLocked;
+
   return (
     <html lang="vi" data-scroll-behavior="smooth">
       <head>
@@ -16,9 +30,14 @@ export default function RootLayout({ children }) {
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <Providers>
-          <AppLayout>{children}</AppLayout>
-        </Providers>
+        {shouldShowLockScreen ? (
+          <SiteLockScreen settings={siteSettings} />
+        ) : (
+          <AuthProvider>
+            <AppLayout>{children}</AppLayout>
+            <AuthModal />
+          </AuthProvider>
+        )}
       </body>
     </html>
   );

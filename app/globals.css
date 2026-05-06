@@ -29,6 +29,165 @@
   --max-width: 1400px;
 }
 
+/* ============================================
+   SITE LOCK
+   ============================================ */
+
+.site-lock-shell {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top, rgba(245, 158, 11, 0.2), transparent 40%),
+    linear-gradient(135deg, #0a0907 0%, #120f08 45%, #050505 100%);
+}
+
+.site-lock-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(245, 158, 11, 0.08), transparent 45%),
+    radial-gradient(circle at left center, rgba(245, 158, 11, 0.16), transparent 35%);
+  pointer-events: none;
+}
+
+.site-lock-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 560px);
+  padding: 36px 30px;
+  border-radius: 32px;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: linear-gradient(180deg, rgba(40, 31, 12, 0.94), rgba(18, 15, 8, 0.94));
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.site-lock-icon {
+  width: 84px;
+  height: 84px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  background: linear-gradient(180deg, #ffd54a, #d79f17);
+  color: #120f08;
+  font-size: 3rem;
+  font-weight: 900;
+  box-shadow: 0 18px 40px rgba(245, 158, 11, 0.22);
+}
+
+.site-lock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #f8df8d;
+  background: rgba(245, 158, 11, 0.08);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.site-lock-badge::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffd54a;
+  box-shadow: 0 0 18px rgba(255, 213, 74, 0.65);
+}
+
+.site-lock-title {
+  margin-bottom: 16px;
+  color: #fff7d6;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.02;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+}
+
+.site-lock-message {
+  color: rgba(255, 241, 199, 0.9);
+  font-size: 1rem;
+  line-height: 1.85;
+  max-width: 42ch;
+}
+
+.site-lock-note {
+  margin-top: 16px;
+  color: rgba(255, 241, 199, 0.72);
+  font-size: 0.82rem;
+  line-height: 1.75;
+}
+
+.site-setting-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px;
+  background:
+    linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(17, 24, 39, 0.4)),
+    var(--bg-card);
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  border-radius: var(--radius);
+}
+
+.site-setting-copy {
+  max-width: 700px;
+}
+
+.site-setting-copy h3 {
+  font-size: 1.05rem;
+  margin: 10px 0 8px;
+}
+
+.site-setting-copy p {
+  color: var(--text-muted);
+}
+
+.site-setting-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.site-setting-status.locked {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+}
+
+.site-setting-status.open {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+}
+
+.site-setting-feedback {
+  margin-top: 12px;
+}
+
+.site-setting-feedback.success {
+  color: #34d399;
+}
+
+.site-setting-feedback.error {
+  color: #f87171;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -2578,6 +2737,36 @@ img {
    ============================================ */
 
 @media (max-width: 768px) {
+  .site-lock-shell {
+    padding: 16px;
+  }
+
+  .site-lock-card {
+    padding: 26px 20px;
+    border-radius: 28px;
+  }
+
+  .site-lock-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    font-size: 2.5rem;
+  }
+
+  .site-lock-message {
+    font-size: 0.94rem;
+  }
+
+  .site-setting-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .site-setting-card .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
   /* Header & Navigation */
   .header-container {
     gap: 12px;
@@ -2780,4 +2969,3 @@ img {
     padding: 12px;
   }
 }
-
