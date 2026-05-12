@@ -1,15 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function AuthPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState('login');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const redirectTo = searchParams.get('redirect') || '/';
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -48,7 +50,7 @@ export default function AuthPage() {
           setSuccess('');
         }, 1500);
       } else {
-        router.push('/');
+        router.push(redirectTo);
         router.refresh();
       }
     } catch {

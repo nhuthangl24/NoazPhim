@@ -2,21 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/AuthContext';
 
 export default function AdminLayout({ children }) {
-  const { user } = useAuth();
-  const router = useRouter();
+  const { user, openAuthModal } = useAuth();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const [stats, setStats] = useState(null);
 
   useEffect(() => {
     if (user && user.role === 'admin') {
       fetch('/api/admin/stats')
         .then((r) => r.json())
-        .then((d) => setStats(d.stats))
         .catch(() => {});
     }
   }, [user]);
@@ -26,6 +23,14 @@ export default function AdminLayout({ children }) {
       <div className="admin-auth-gate">
         <h2>Admin Panel</h2>
         <p>Vui lòng đăng nhập với tài khoản admin</p>
+        <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <button type="button" className="btn btn-primary" onClick={openAuthModal}>
+            Đăng nhập nhanh
+          </button>
+          <Link href="/auth?redirect=%2Fadmin" className="btn btn-secondary">
+            Mở trang đăng nhập
+          </Link>
+        </div>
       </div>
     );
   }
